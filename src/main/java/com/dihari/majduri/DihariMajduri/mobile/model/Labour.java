@@ -1,5 +1,6 @@
 package com.dihari.majduri.DihariMajduri.mobile.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,9 +33,22 @@ public class Labour {
 
     @ManyToOne
     @JoinColumn(name = "farmer_id")
+    @JsonBackReference
     private Farmer farmer;
 
-    @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy="labour", orphanRemoval=true)
-    private List<LabourEmploymentPeriod> labourEmployementPeriods = new ArrayList<>();
+    @OneToMany(mappedBy = "labour", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LabourEmployment> labourEmployments=new ArrayList<>();
+
+    public Labour(String name,String mobileNumber,Farmer farmer){
+        this.name=name;
+        this.mobileNumber=mobileNumber;
+        this.farmer=farmer;
+    }
+    public Labour(int id ,String name,String mobileNumber,Farmer farmer){
+        this.id=id;
+        this.name=name;
+        this.mobileNumber=mobileNumber;
+        this.farmer=farmer;
+    }
 
 }

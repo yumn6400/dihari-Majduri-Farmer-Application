@@ -1,9 +1,9 @@
 package com.dihari.majduri.DihariMajduri.mobile.service;
 
-import com.dihari.majduri.DihariMajduri.mobile.common.StatusCode;
+import com.dihari.majduri.DihariMajduri.mobile.common.ErrorCode;
 import com.dihari.majduri.DihariMajduri.mobile.dao.FarmerRepository;
-import com.dihari.majduri.DihariMajduri.mobile.dto.ChangeOwnerPin;
-import com.dihari.majduri.DihariMajduri.mobile.dto.LoginRequest;
+import com.dihari.majduri.DihariMajduri.mobile.pojo.ChangeFarmerPinPojo;
+import com.dihari.majduri.DihariMajduri.mobile.pojo.LoginRequestPojo;
 import com.dihari.majduri.DihariMajduri.mobile.model.Farmer;
 import com.dihari.majduri.DihariMajduri.mobile.common.ResponseWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,51 +26,63 @@ public class FarmerService {
     }
 
     public void addFarmer(Farmer farmer) {
-        farmerRepository.save(farmer);
+        Optional<Farmer> existingFarmerOptional = farmerRepository.findByMobileNumber(farmer.getMobileNumber());
+        if (existingFarmerOptional.isPresent()) {
+           Farmer existingFarmer=existingFarmerOptional.get();
+           existingFarmer.setName(farmer.getName());
+           existingFarmer.setMobileNumber(farmer.getMobileNumber());
+           existingFarmer.setPin(farmer.getPin());
+           farmerRepository.save(existingFarmer);
+        }
+        else {
+            farmerRepository.save(farmer);
+        }
     }
 
-    public boolean updateFarmer(int id, Farmer updatedFarmer) {
-        Optional<Farmer> existingFarmerOptional = farmerRepository.findById(id);
-        if (!existingFarmerOptional.isPresent()) {
+    public boolean updateFarmer(Farmer updatedFarmer) {
+        Optional<Farmer> existingFarmerOptional = farmerRepository.findById(updatedFarmer.getId());
+        if (existingFarmerOptional.isEmpty()) {
             return false;
         }
         Farmer existingFarmer = existingFarmerOptional.get();
         existingFarmer.setName(updatedFarmer.getName());
         existingFarmer.setMobileNumber(updatedFarmer.getMobileNumber());
+        existingFarmer.setPin(updatedFarmer.getPin());
         farmerRepository.save(existingFarmer);
         return true;
     }
 
     public boolean deleteFarmer(int id) {
         Optional<Farmer> existingFarmerOptional = farmerRepository.findById(id);
-        if (!existingFarmerOptional.isPresent()) {
+        if (existingFarmerOptional.isEmpty()) {
             return false;
         }
         farmerRepository.delete(existingFarmerOptional.get());
         return true;
     }
 
-    public ResponseWrapper validateFarmerPin(LoginRequest loginRequest) {
-        Farmer farmer = farmerRepository.findByMobileNumber(loginRequest.getMobileNumber());
+    public ResponseWrapper<String> validateFarmerPin(LoginRequestPojo loginRequestPojo) {
+        Optional<Farmer> farmerOptional = farmerRepository.findByMobileNumber(loginRequestPojo.getMobileNumber());
 
-        if (farmer == null) {
-            return new ResponseWrapper(false, StatusCode.MOBILE_NUMBER_NOT_EXISTS.getCode(), "Mobile number not exists");
+        if (farmerOptional.isEmpty()) {
+            return new ResponseWrapper<String>(false,"", ErrorCode.MOBILE_NUMBER_NOT_EXISTS, "Mobile number not exists");
         }
-        if (farmer.getPin().equals(loginRequest.getPin())) {
-            return new ResponseWrapper(true, StatusCode.AUTHENTICATE.getCode());
+        Farmer farmer=farmerOptional.get();
+        if (farmer.getPin().equals(loginRequestPojo.getPin())) {
+            return new ResponseWrapper<String>(true, "Authenticate successfully");
         } else {
-            return new ResponseWrapper(false, StatusCode.NOT_AUTHENTICATE.getCode());
+            return new ResponseWrapper<String>(false,"", ErrorCode.NOT_AUTHENTICATE,"Invalid Pin");
         }
     }
 
-    public ResponseWrapper changeFarmerPin(ChangeOwnerPin changeOwnerPin) {
+    public ResponseWrapper<String> changeFarmerPin(ChangeFarmerPinPojo changeOwnerPin) {
         Optional<Farmer> existingFarmerOptional = farmerRepository.findById(changeOwnerPin.getId());
-        if (!existingFarmerOptional.isPresent()) {
-            return new ResponseWrapper(false, StatusCode.ID_NOT_EXISTS.getCode(), "Farmer not found");
+        if (existingFarmerOptional.isEmpty()) {
+            return new ResponseWrapper<String>(false,"", ErrorCode.ID_NOT_EXISTS, "Farmer not found");
         }
         Farmer existingFarmer = existingFarmerOptional.get();
         existingFarmer.setPin(changeOwnerPin.getPin());
         farmerRepository.save(existingFarmer);
-        return new ResponseWrapper(true, "Farmer Pin updated successfully");
+        return new ResponseWrapper<String>(true, "Farmer Pin updated successfully");
     }
 }

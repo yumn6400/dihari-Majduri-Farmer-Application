@@ -1,4 +1,4 @@
-package com.dihari.majduri.DihariMajduri.mobile.dto;
+package com.dihari.majduri.DihariMajduri.mobile.pojo;
 
 
 import lombok.AllArgsConstructor;
@@ -11,14 +11,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LabourEmploymentPeriodPojo {
-
-
 		private Date date;	    
-	    private String cropName;
-	    private String cropWorkTypeName;
+	    private CropPojo crop;
+	    private CropWorkTypePojo cropWorkType;
 	    private int labourCount;
-	    private List<LabourPojo> labourPojo;
-
+	    private List<LabourPojo> labours;
+		private FarmerPojo farmer;
 	 
 	}
 

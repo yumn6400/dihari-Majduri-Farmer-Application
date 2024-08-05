@@ -4,7 +4,6 @@ import com.dihari.majduri.DihariMajduri.mobile.dao.CropWorkTypeRepository;
 import com.dihari.majduri.DihariMajduri.mobile.model.CropWorkType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 

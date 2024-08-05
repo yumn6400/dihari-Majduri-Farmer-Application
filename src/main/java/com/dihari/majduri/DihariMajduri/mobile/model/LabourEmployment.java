@@ -1,5 +1,7 @@
 package com.dihari.majduri.DihariMajduri.mobile.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,6 +19,7 @@ public class LabourEmployment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+
     @ManyToOne
     @JoinColumn(name = "labour_id")
     private Labour labour;
@@ -24,7 +27,5 @@ public class LabourEmployment {
     @ManyToOne
     @JoinColumn(name = "labourEmploymentPeriod_id")
     private LabourEmploymentPeriod labourEmploymentPeriod;
-
-
 
 }

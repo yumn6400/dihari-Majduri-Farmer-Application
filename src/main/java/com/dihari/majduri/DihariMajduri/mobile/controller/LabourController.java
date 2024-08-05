@@ -3,12 +3,12 @@ package com.dihari.majduri.DihariMajduri.mobile.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-
+import com.dihari.majduri.DihariMajduri.mobile.common.ErrorCode;
 import com.dihari.majduri.DihariMajduri.mobile.common.ResponseWrapper;
-import com.dihari.majduri.DihariMajduri.mobile.common.StatusCode;
-import com.dihari.majduri.DihariMajduri.mobile.dto.LabourPojo;
+import com.dihari.majduri.DihariMajduri.mobile.pojo.LabourPojo;
+import com.dihari.majduri.DihariMajduri.mobile.model.Farmer;
 import com.dihari.majduri.DihariMajduri.mobile.model.Labour;
+import com.dihari.majduri.DihariMajduri.mobile.service.FarmerService;
 import com.dihari.majduri.DihariMajduri.mobile.service.LabourService;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,63 +25,85 @@ public class LabourController {
 
     @Autowired
     private LabourService labourService;
+    
+    @Autowired
+    private FarmerService farmerService;
 
     @GetMapping
     public ResponseEntity<?> getAllLabours() {
         List<Labour> labours = labourService.findAllLabours();
         List<LabourPojo> list = new ArrayList<>();
         for (Labour labour : labours) {
-            LabourPojo labourResponse = new LabourPojo(labour.getId(), labour.getName(), labour.getMobileNumber());
+            LabourPojo labourResponse = new LabourPojo(labour.getId(), labour.getName(), labour.getMobileNumber(),labour.getFarmer().getId());
             list.add(labourResponse);
         }
-        ResponseWrapper responseWrapper = new ResponseWrapper(true, list);
+        ResponseWrapper<List<LabourPojo>> responseWrapper = new ResponseWrapper<>(true, list);
         return ResponseEntity.ok(new Gson().toJson(responseWrapper));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getLabourById(@PathVariable int id) {
-        Optional<Labour> labour = labourService.getLabourById(id);
-        if (!labour.isPresent()) {
-            ResponseWrapper responseWrapper = new ResponseWrapper(false, StatusCode.LABOUR_NOT_EXISTS.getCode(), "Labour does not exist");
+        Optional<Labour> labourOptional = labourService.getLabourById(id);
+        if (!labourOptional.isPresent()) {
+            ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"", ErrorCode.ID_NOT_EXISTS, "Labour Id  not exist");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Gson().toJson(responseWrapper));
         }
-        LabourPojo labourResponse = new LabourPojo(labour.get().getId(), labour.get().getName(), labour.get().getMobileNumber());
-        ResponseWrapper responseWrapper = new ResponseWrapper(true, labourResponse);
+        Labour labour=labourOptional.get();
+        LabourPojo labourResponse = new LabourPojo(labour.getId(), labour.getName(), labour.getMobileNumber(),labour.getFarmer().getId());
+        ResponseWrapper<LabourPojo> responseWrapper = new ResponseWrapper<>(true, labourResponse);
         return ResponseEntity.ok(new Gson().toJson(responseWrapper));
     }
 
     @PostMapping
-    public ResponseEntity<?> addLabour(@Validated @RequestBody Labour labour, BindingResult bindingResult) {
+    public ResponseEntity<?> addLabour(@Validated @RequestBody LabourPojo labourPojo, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            ResponseWrapper responseWrapper = new ResponseWrapper(false, "Validation error");
+            ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"",ErrorCode.VALIDATION_ERROR, "Validation error");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Gson().toJson(responseWrapper));
         }
+        
+        Optional<Farmer> farmer=farmerService.getFarmerById(labourPojo.getFarmerId());
+        if(!farmer.isPresent())
+        {
+            ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"",ErrorCode.FARMER_ID_NOT_EXISTS, "Farmer Id not exists");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Gson().toJson(responseWrapper));
+        }
+        
+        Labour labour=new Labour(labourPojo.getName(),labourPojo.getMobileNumber(),farmer.get());
         labourService.addLabour(labour);
-        ResponseWrapper responseWrapper = new ResponseWrapper(true, "Labour added successfully");
+        ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(true, "Labour added successfully");
         return ResponseEntity.status(HttpStatus.CREATED).body(new Gson().toJson(responseWrapper));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateLabour(@PathVariable int id, @Validated @RequestBody Labour updatedLabour, BindingResult bindingResult) {
+    public ResponseEntity<?> updateLabour(@PathVariable int id, @Validated @RequestBody LabourPojo updatedLabour, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            ResponseWrapper responseWrapper = new ResponseWrapper(false, "Validation error");
+            ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"",ErrorCode.VALIDATION_ERROR, "Validation error");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Gson().toJson(responseWrapper));
         }
-        if (!labourService.updateLabour(id, updatedLabour)) {
-            ResponseWrapper responseWrapper = new ResponseWrapper(false, StatusCode.LABOUR_NOT_EXISTS.getCode(), "Labour does not exist");
+
+        Optional<Farmer> farmer=farmerService.getFarmerById(updatedLabour.getFarmerId());
+        if(!farmer.isPresent())
+        {
+            ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"",ErrorCode.FARMER_ID_NOT_EXISTS, "Farmer Id not exists");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Gson().toJson(responseWrapper));
+        }
+
+        Labour labour=new Labour(updatedLabour.getId(),updatedLabour.getName(),updatedLabour.getMobileNumber(),farmer.get());
+        if (!labourService.updateLabour(id, labour)) {
+            ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"", ErrorCode.ID_NOT_EXISTS, "Labour Id does not exist");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Gson().toJson(responseWrapper));
         }
-        ResponseWrapper responseWrapper = new ResponseWrapper(true, "Labour updated successfully");
+        ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(true, "Labour updated successfully");
         return ResponseEntity.ok(new Gson().toJson(responseWrapper));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteLabour(@PathVariable int id) {
         if (!labourService.deleteLabour(id)) {
-            ResponseWrapper responseWrapper = new ResponseWrapper(false, StatusCode.LABOUR_NOT_EXISTS.getCode(), "Labour does not exist");
+            ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"", ErrorCode.ID_NOT_EXISTS, "Labour Id does not exist");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Gson().toJson(responseWrapper));
         }
-        ResponseWrapper responseWrapper = new ResponseWrapper(true, "Labour deleted successfully");
+        ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(true, "Labour deleted successfully");
         return ResponseEntity.ok(new Gson().toJson(responseWrapper));
     }
 }

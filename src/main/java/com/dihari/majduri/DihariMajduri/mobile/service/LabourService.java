@@ -3,6 +3,7 @@ package com.dihari.majduri.DihariMajduri.mobile.service;
 import com.dihari.majduri.DihariMajduri.mobile.dao.LabourRepository;
 
 import com.dihari.majduri.DihariMajduri.mobile.model.Labour;
+import com.dihari.majduri.DihariMajduri.mobile.model.LabourEmploymentPeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,21 +26,30 @@ public class LabourService {
     }
 
     public void addLabour(Labour labour) {
-        labourRepository.save(labour);
+        Optional<Labour> optionalLabour = labourRepository.findByMobileNumber(labour.getMobileNumber());
+        if (optionalLabour.isPresent()) {
+            Labour existingLabour = optionalLabour.get();
+            existingLabour.setName(labour.getName());
+            labourRepository.save(existingLabour);
+        }
+        else {
+            labourRepository.save(labour);
+        }
     }
 
     public boolean updateLabour(int id, Labour updatedLabour) {
-        Optional<Labour> existingLabourOptional = labourRepository.findById(id);
-        if (!existingLabourOptional.isPresent()) {
-            return false;
+        Optional<Labour> optionalLabour = labourRepository.findById(id);
+        if (optionalLabour.isPresent()) {
+            Labour existingLabour = optionalLabour.get();
+
+            existingLabour.setName(updatedLabour.getName());
+            existingLabour.setMobileNumber(updatedLabour.getMobileNumber());
+            existingLabour.setFarmer(updatedLabour.getFarmer());
+
+            labourRepository.save(existingLabour);
+            return true;
         }
-        Labour existingLabour = existingLabourOptional.get();
-        existingLabour.setName(updatedLabour.getName());
-        existingLabour.setMobileNumber(updatedLabour.getMobileNumber());
-        existingLabour.setFarmer(updatedLabour.getFarmer());
-        existingLabour.setLabourEmployementPeriods(updatedLabour.getLabourEmployementPeriods());
-        labourRepository.save(existingLabour);
-        return true;
+        return false;
     }
 
     public boolean deleteLabour(int id) {

@@ -7,30 +7,15 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseWrapper {
-	private boolean success;
-    private String message;
+public class ResponseWrapper<T> {
+    private boolean success;
+    private T data;
     private int internalCode;
-    private Object data;
+    private String message;
 
-    public ResponseWrapper(boolean success , Object data) {
-    	this.success=success;
+    public ResponseWrapper(boolean success, T data) {
+        this.success = success;
         this.data = data;
-    }
-    
-    public ResponseWrapper(boolean success , Object data, String message) {
-    	this.success=success;
-        this.data = data;
-        this.message=message;
-    }
-    public ResponseWrapper(boolean success , int internalCode, String message) {
-    	this.success=success;
-        this.internalCode=internalCode;
-        this.message = message;
-    }
-    public ResponseWrapper(boolean success , int internalCode) {
-    	this.success=success;
-        this.internalCode=internalCode;
     }
 
 }

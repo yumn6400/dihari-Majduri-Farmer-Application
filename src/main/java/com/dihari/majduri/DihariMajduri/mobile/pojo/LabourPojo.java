@@ -1,4 +1,4 @@
-package com.dihari.majduri.DihariMajduri.mobile.dto;
+package com.dihari.majduri.DihariMajduri.mobile.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,4 +12,5 @@ public class LabourPojo {
 	private int id;
 	private String name;
 	private String mobileNumber;
+	private int farmerId;
 }

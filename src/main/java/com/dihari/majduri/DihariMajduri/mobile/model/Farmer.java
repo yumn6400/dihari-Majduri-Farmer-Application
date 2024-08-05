@@ -1,5 +1,7 @@
 package com.dihari.majduri.DihariMajduri.mobile.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,6 +35,20 @@ public class Farmer {
     @Size(min=4,message="Pin number should be of 4 characters")
     private String pin;
 
-    @OneToMany(cascade=CascadeType.ALL, fetch=FetchType.LAZY, mappedBy="farmer", orphanRemoval=true)
-    private List<Labour> labours = new ArrayList<>();
+    @OneToMany(mappedBy = "farmer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Labour> labours=new ArrayList<>();
+
+
+    public Farmer(String name,String mobileNumber,String pin){
+        this.name=name;
+        this.mobileNumber=mobileNumber;
+        this.pin=pin;
+    }
+
+    public Farmer(int id , String name,String mobileNumber,String pin){
+        this.id=id;
+        this.name=name;
+        this.mobileNumber=mobileNumber;
+        this.pin=pin;
+    }
 }
