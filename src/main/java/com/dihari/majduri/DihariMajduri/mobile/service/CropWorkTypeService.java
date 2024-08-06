@@ -15,7 +15,7 @@ public class CropWorkTypeService {
     private CropWorkTypeRepository cropWorkTypeRepository;
 
     public List<CropWorkType> findAll() {
-        return (List<CropWorkType>) cropWorkTypeRepository.findAll();
+        return cropWorkTypeRepository.findAll();
     }
 
     public Optional<CropWorkType> findById(int id) {

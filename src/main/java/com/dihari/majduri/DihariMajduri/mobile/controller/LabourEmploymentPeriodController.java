@@ -1,6 +1,7 @@
 package com.dihari.majduri.DihariMajduri.mobile.controller;
 
 import com.dihari.majduri.DihariMajduri.mobile.common.ErrorCode;
+import com.dihari.majduri.DihariMajduri.mobile.common.Helper;
 import com.dihari.majduri.DihariMajduri.mobile.common.ResponseWrapper;
 import com.dihari.majduri.DihariMajduri.mobile.model.*;
 import com.dihari.majduri.DihariMajduri.mobile.pojo.*;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 
 @RestController
 @RequestMapping("/labour-employment-periods")
@@ -52,27 +52,25 @@ public class LabourEmploymentPeriodController {
                         )
                 ));
         List<LabourEmploymentPeriodPojo> responseList = new ArrayList<>();
-        groupedData.forEach((cropId, workTypeMap) -> {
-            workTypeMap.forEach((workTypeId, dateMap) -> {
-                dateMap.forEach((date, periods) -> {
-                    List<LabourPojo> labourPojos = periods.stream()
-                            .flatMap(lep -> lep.getLabourEmployments().stream())
-                            .map(le -> new LabourPojo(
-                                    le.getLabour().getId(),
-                                    le.getLabour().getName(),
-                                    le.getLabour().getMobileNumber(),
-                                    le.getLabour().getFarmer().getId()))
-                            .collect(Collectors.toList());
+        groupedData.forEach((cropId, workTypeMap) -> workTypeMap.forEach((workTypeId, dateMap) -> {
+            dateMap.forEach((date, periods) -> {
+                List<LabourPojo> labourPojos = periods.stream()
+                        .flatMap(lep -> lep.getLabourEmployments().stream())
+                        .map(le -> new LabourPojo(
+                                le.getLabour().getId(),
+                                le.getLabour().getName(),
+                                le.getLabour().getMobileNumber(),
+                                le.getLabour().getFarmer().getId()))
+                        .collect(Collectors.toList());
 
-                    CropPojo cropPojo = new CropPojo(periods.get(0).getCrop().getId(), periods.get(0).getCrop().getName());
-                    CropWorkTypePojo cropWorkTypePojo = new CropWorkTypePojo(periods.get(0).getCropWorkType().getId(), periods.get(0).getCropWorkType().getName());
-                    FarmerPojo farmerPojo = new FarmerPojo(periods.get(0).getFarmer().getId(), periods.get(0).getFarmer().getName(), periods.get(0).getFarmer().getMobileNumber(), periods.get(0).getFarmer().getPin());
+                CropPojo cropPojo = new CropPojo(periods.get(0).getCrop().getId(), periods.get(0).getCrop().getName());
+                CropWorkTypePojo cropWorkTypePojo = new CropWorkTypePojo(periods.get(0).getCropWorkType().getId(), periods.get(0).getCropWorkType().getName());
+                FarmerPojo farmerPojo = new FarmerPojo(periods.get(0).getFarmer().getId(), periods.get(0).getFarmer().getFirstName(),periods.get(0).getFarmer().getLastName(), periods.get(0).getFarmer().getMobileNumber(), periods.get(0).getFarmer().getPin());
 
-                    LabourEmploymentPeriodPojo pojo = new LabourEmploymentPeriodPojo(date, cropPojo, cropWorkTypePojo, labourPojos.size(), labourPojos, farmerPojo);
-                    responseList.add(pojo);
-                });
+                LabourEmploymentPeriodPojo pojo = new LabourEmploymentPeriodPojo(Helper.convertSqlDateToString(date), cropPojo, cropWorkTypePojo, labourPojos.size(), labourPojos, farmerPojo);
+                responseList.add(pojo);
             });
-        });
+        }));
 
 
 
@@ -109,11 +107,11 @@ public class LabourEmploymentPeriodController {
                 new CropWorkTypePojo(0, "Unknown");
 
         FarmerPojo farmerPojo = labourEmploymentPeriod.getFarmer() != null ?
-                new FarmerPojo(labourEmploymentPeriod.getFarmer().getId(), labourEmploymentPeriod.getFarmer().getName(), labourEmploymentPeriod.getFarmer().getMobileNumber(), labourEmploymentPeriod.getFarmer().getPin()) :
+                new FarmerPojo(labourEmploymentPeriod.getFarmer().getId(), labourEmploymentPeriod.getFarmer().getFirstName(),labourEmploymentPeriod.getFarmer().getLastName(), labourEmploymentPeriod.getFarmer().getMobileNumber(), labourEmploymentPeriod.getFarmer().getPin()) :
                 new FarmerPojo(0, "Unknown", "Unknown", "Unknown");
 
         LabourEmploymentPeriodPojo labourEmploymentPeriodPojo = new LabourEmploymentPeriodPojo(
-                labourEmploymentPeriod.getDate(),
+                Helper.convertSqlDateToString(labourEmploymentPeriod.getDate()),
                 cropPojo,
                 cropWorkTypePojo,
                 labourPojos.size(),
@@ -140,41 +138,39 @@ public class LabourEmploymentPeriodController {
 
         List<LabourEmploymentPeriodPojo> responseList = new ArrayList<>();
 
-        groupedData.forEach((cropId, workTypeMap) -> {
-            workTypeMap.forEach((workTypeId, dateMap) -> {
-                dateMap.forEach((date, periods) -> {
-                    List<LabourPojo> labourPojos = periods.stream()
-                            .flatMap(lep -> lep.getLabourEmployments().stream())
-                            .map(le -> new LabourPojo(
-                                    le.getLabour().getId(),
-                                    le.getLabour().getName(),
-                                    le.getLabour().getMobileNumber(),
-                                    le.getLabour().getFarmer().getId()))
-                            .collect(Collectors.toList());
+        groupedData.forEach((cropId, workTypeMap) -> workTypeMap.forEach((workTypeId, dateMap) -> {
+            dateMap.forEach((date, periods) -> {
+                List<LabourPojo> labourPojos = periods.stream()
+                        .flatMap(lep -> lep.getLabourEmployments().stream())
+                        .map(le -> new LabourPojo(
+                                le.getLabour().getId(),
+                                le.getLabour().getName(),
+                                le.getLabour().getMobileNumber(),
+                                le.getLabour().getFarmer().getId()))
+                        .collect(Collectors.toList());
 
-                    CropPojo cropPojo = new CropPojo(periods.get(0).getCrop().getId(), periods.get(0).getCrop().getName());
-                    CropWorkTypePojo cropWorkTypePojo = new CropWorkTypePojo(periods.get(0).getCropWorkType().getId(), periods.get(0).getCropWorkType().getName());
-                    FarmerPojo farmerPojo = new FarmerPojo(periods.get(0).getFarmer().getId(), periods.get(0).getFarmer().getName(), periods.get(0).getFarmer().getMobileNumber(), periods.get(0).getFarmer().getPin());
+                CropPojo cropPojo = new CropPojo(periods.get(0).getCrop().getId(), periods.get(0).getCrop().getName());
+                CropWorkTypePojo cropWorkTypePojo = new CropWorkTypePojo(periods.get(0).getCropWorkType().getId(), periods.get(0).getCropWorkType().getName());
+                FarmerPojo farmerPojo = new FarmerPojo(periods.get(0).getFarmer().getId(), periods.get(0).getFarmer().getFirstName(),periods.get(0).getFarmer().getLastName(), periods.get(0).getFarmer().getMobileNumber(), periods.get(0).getFarmer().getPin());
 
-                    LabourEmploymentPeriodPojo pojo = new LabourEmploymentPeriodPojo(date, cropPojo, cropWorkTypePojo, labourPojos.size(), labourPojos, farmerPojo);
-                    responseList.add(pojo);
-                });
+                LabourEmploymentPeriodPojo pojo = new LabourEmploymentPeriodPojo(Helper.convertSqlDateToString(date), cropPojo, cropWorkTypePojo, labourPojos.size(), labourPojos, farmerPojo);
+                responseList.add(pojo);
             });
-        });
+        }));
         ResponseWrapper<List<LabourEmploymentPeriodPojo>> responseWrapper = new ResponseWrapper<>(true, responseList);
         return ResponseEntity.ok(new Gson().toJson(responseWrapper));
     }
 
     @PostMapping
     public ResponseEntity<String> addLabourEmploymentPeriod(
-            @Validated @RequestBody LabourEmploymentPeriodPojo labourEmploymentPeriodPojo, BindingResult bindingResult) {
+            @Validated @RequestBody LabourEmploymentPeriodPojo labourEmploymentPeriodPojo, BindingResult bindingResult) throws ParseException {
         if (bindingResult.hasErrors()) {
             ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false, "", ErrorCode.VALIDATION_ERROR, "Validation error");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Gson().toJson(responseWrapper));
         }
 
         LabourEmploymentPeriod labourEmploymentPeriod = new LabourEmploymentPeriod();
-        labourEmploymentPeriod.setDate(labourEmploymentPeriodPojo.getDate());
+        labourEmploymentPeriod.setDate(Helper.convertStringToSqlDate(labourEmploymentPeriodPojo.getDate()));
 
         Optional<Crop> cropOptional = cropService.findById(labourEmploymentPeriodPojo.getCrop().getId());
         if (cropOptional.isEmpty()) {
@@ -226,7 +222,7 @@ public class LabourEmploymentPeriodController {
     public ResponseEntity<String> updateLabourEmploymentPeriod(
             @PathVariable int id,
             @Validated @RequestBody LabourEmploymentPeriodPojo updatedLabourEmploymentPeriodPojo,
-            BindingResult bindingResult) {
+            BindingResult bindingResult) throws ParseException {
         if (bindingResult.hasErrors()) {
             ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false, "", ErrorCode.VALIDATION_ERROR, "Validation error");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Gson().toJson(responseWrapper));
@@ -239,7 +235,7 @@ public class LabourEmploymentPeriodController {
         }
 
         LabourEmploymentPeriod labourEmploymentPeriod = labourEmploymentPeriodOptional.get();
-        labourEmploymentPeriod.setDate(updatedLabourEmploymentPeriodPojo.getDate());
+        labourEmploymentPeriod.setDate(Helper.convertStringToSqlDate(updatedLabourEmploymentPeriodPojo.getDate()));
 
         Optional<Crop> cropOptional = cropService.findById(updatedLabourEmploymentPeriodPojo.getCrop().getId());
         if (cropOptional.isEmpty()) {
@@ -301,4 +297,7 @@ public class LabourEmploymentPeriodController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Gson().toJson(responseWrapper));
         }
     }
+
+
+
 }

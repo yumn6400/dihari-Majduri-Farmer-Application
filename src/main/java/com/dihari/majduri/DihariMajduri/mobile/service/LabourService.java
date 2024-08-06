@@ -3,7 +3,6 @@ package com.dihari.majduri.DihariMajduri.mobile.service;
 import com.dihari.majduri.DihariMajduri.mobile.dao.LabourRepository;
 
 import com.dihari.majduri.DihariMajduri.mobile.model.Labour;
-import com.dihari.majduri.DihariMajduri.mobile.model.LabourEmploymentPeriod;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,12 @@ public class LabourService {
     private LabourRepository labourRepository;
 
     public List<Labour> findAllLabours() {
-        return (List<Labour>) labourRepository.findAll();
+        return labourRepository.findAll();
+    }
+
+    public List<Labour> findAllLaboursByFarmerId(int farmerId) {
+
+        return labourRepository.getByFarmerId(farmerId);
     }
 
     public Optional<Labour> getLabourById(int id) {
@@ -37,8 +41,8 @@ public class LabourService {
         }
     }
 
-    public boolean updateLabour(int id, Labour updatedLabour) {
-        Optional<Labour> optionalLabour = labourRepository.findById(id);
+    public boolean updateLabour(Labour updatedLabour) {
+        Optional<Labour> optionalLabour = labourRepository.findById(updatedLabour.getId());
         if (optionalLabour.isPresent()) {
             Labour existingLabour = optionalLabour.get();
 

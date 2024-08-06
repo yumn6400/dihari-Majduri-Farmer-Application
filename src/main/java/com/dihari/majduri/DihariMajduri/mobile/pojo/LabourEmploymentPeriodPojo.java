@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class LabourEmploymentPeriodPojo {
-		private Date date;	    
+		private String date;
 	    private CropPojo crop;
 	    private CropWorkTypePojo cropWorkType;
 	    private int labourCount;

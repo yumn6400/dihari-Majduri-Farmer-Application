@@ -16,7 +16,7 @@ public class CropService {
     private CropRepository cropRepository;
 
     public List<Crop> findAll() {
-        return (List<Crop>) cropRepository.findAll();
+        return cropRepository.findAll();
     }
 
     public Optional<Crop> findById(int id) {

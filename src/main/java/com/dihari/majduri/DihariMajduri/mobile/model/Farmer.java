@@ -1,7 +1,5 @@
 package com.dihari.majduri.DihariMajduri.mobile.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,8 +22,12 @@ public class Farmer {
     private int id;
 
     @NotBlank(message="Name cannot be blank")
-    @Size(min=3, max=50, message="Name length must be between 3 and 50 characters")
-    private String name;
+    @Size(min=3, max=50, message="First Name length must be between 3 and 50 characters")
+    private String firstName;
+
+    @NotBlank(message="Name cannot be blank")
+    @Size(min=3, max=50, message="Last Name length must be between 3 and 50 characters")
+    private String lastName;
 
     @Column(unique=true)
     @NotBlank(message="Mobile number cannot be blank")
@@ -38,16 +40,21 @@ public class Farmer {
     @OneToMany(mappedBy = "farmer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Labour> labours=new ArrayList<>();
 
+    @OneToMany(mappedBy = "farmer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<LabourEmploymentPeriod> labourEmploymentPeriods=new ArrayList<>();
 
-    public Farmer(String name,String mobileNumber,String pin){
-        this.name=name;
+
+    public Farmer(String firstName,String lastName,String mobileNumber,String pin){
+        this.firstName=firstName;
+        this.lastName=lastName;
         this.mobileNumber=mobileNumber;
         this.pin=pin;
     }
 
-    public Farmer(int id , String name,String mobileNumber,String pin){
+    public Farmer(int id , String firstName,String lastName,String mobileNumber,String pin){
         this.id=id;
-        this.name=name;
+        this.firstName=firstName;
+        this.lastName=lastName;
         this.mobileNumber=mobileNumber;
         this.pin=pin;
     }

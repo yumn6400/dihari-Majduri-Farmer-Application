@@ -14,9 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+
+import java.util.*;
 
 @RestController
 @RequestMapping("/farmers")
@@ -30,7 +29,7 @@ public class FarmerController {
         List<Farmer> farmers = farmerService.findAllFarmers();
         List<FarmerPojo> farmersPojo = new ArrayList<>();
         for (Farmer farmer:farmers) {
-            farmersPojo.add(new FarmerPojo(farmer.getId(),farmer.getName(),farmer.getMobileNumber()));
+            farmersPojo.add(new FarmerPojo(farmer.getId(),farmer.getFirstName(),farmer.getLastName(),farmer.getMobileNumber()));
         }
         ResponseWrapper<List<FarmerPojo>> responseWrapper = new ResponseWrapper<>(true, farmersPojo);
         return ResponseEntity.ok(new Gson().toJson(responseWrapper));
@@ -44,7 +43,7 @@ public class FarmerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Gson().toJson(responseWrapper));
         }
         Farmer farmer=farmerOptional.get();
-        FarmerPojo farmerPojo=new FarmerPojo(farmer.getId(),farmer.getName(),farmer.getMobileNumber());
+        FarmerPojo farmerPojo=new FarmerPojo(farmer.getId(),farmer.getFirstName(),farmer.getLastName(),farmer.getMobileNumber());
         ResponseWrapper<FarmerPojo> responseWrapper = new ResponseWrapper<>(true, farmerPojo);
         return ResponseEntity.ok(new Gson().toJson(responseWrapper));
     }
@@ -55,9 +54,12 @@ public class FarmerController {
             ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"", ErrorCode.VALIDATION_ERROR, "Validation error");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Gson().toJson(responseWrapper));
         }
-        Farmer farmer=new Farmer(farmerPojo.getName(),farmerPojo.getMobileNumber(),farmerPojo.getPin());
-        farmerService.addFarmer(farmer);
-        ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(true, "Farmer added successfully");
+        Farmer farmer=new Farmer(farmerPojo.getFirstName(),farmerPojo.getLastName(),farmerPojo.getMobileNumber(),farmerPojo.getPin());
+        int id=farmerService.addFarmer(farmer);
+
+        Map<String, Integer> responseData = new HashMap<>();
+        responseData.put("id", id);
+        ResponseWrapper<Map<String,Integer>> responseWrapper = new ResponseWrapper<>(true, responseData);
         return ResponseEntity.status(HttpStatus.CREATED).body(new Gson().toJson(responseWrapper));
     }
 
@@ -67,7 +69,7 @@ public class FarmerController {
             ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"",ErrorCode.VALIDATION_ERROR, "Validation error");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Gson().toJson(responseWrapper));
         }
-        Farmer farmer=new Farmer(updatedFarmer.getId(),updatedFarmer.getName(),updatedFarmer.getMobileNumber(),updatedFarmer.getPin());
+        Farmer farmer=new Farmer(updatedFarmer.getId(),updatedFarmer.getFirstName(),updatedFarmer.getLastName(),updatedFarmer.getMobileNumber(),updatedFarmer.getPin());
         if (!farmerService.updateFarmer(farmer)) {
             ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"", ErrorCode.ID_NOT_EXISTS,"Farmer Id not exists");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Gson().toJson(responseWrapper));
@@ -100,4 +102,6 @@ public class FarmerController {
         }
         return ResponseEntity.ok(new Gson().toJson(responseWrapper));
     }
+
+
 }

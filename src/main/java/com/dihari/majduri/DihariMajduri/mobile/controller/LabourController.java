@@ -41,6 +41,18 @@ public class LabourController {
         return ResponseEntity.ok(new Gson().toJson(responseWrapper));
     }
 
+    @GetMapping("/farmerId/{farmerId}")
+    public ResponseEntity<?> getAllLaboursByFarmerId(@PathVariable int farmerId) {
+        List<Labour> labours = labourService.findAllLaboursByFarmerId(farmerId);
+        List<LabourPojo> list = new ArrayList<>();
+        for (Labour labour : labours) {
+            LabourPojo labourResponse = new LabourPojo(labour.getId(), labour.getName(), labour.getMobileNumber(),labour.getFarmer().getId());
+            list.add(labourResponse);
+        }
+        ResponseWrapper<List<LabourPojo>> responseWrapper = new ResponseWrapper<>(true, list);
+        return ResponseEntity.ok(new Gson().toJson(responseWrapper));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getLabourById(@PathVariable int id) {
         Optional<Labour> labourOptional = labourService.getLabourById(id);
@@ -74,8 +86,8 @@ public class LabourController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new Gson().toJson(responseWrapper));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateLabour(@PathVariable int id, @Validated @RequestBody LabourPojo updatedLabour, BindingResult bindingResult) {
+    @PutMapping
+    public ResponseEntity<?> updateLabour(@Validated @RequestBody LabourPojo updatedLabour, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"",ErrorCode.VALIDATION_ERROR, "Validation error");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Gson().toJson(responseWrapper));
@@ -89,7 +101,7 @@ public class LabourController {
         }
 
         Labour labour=new Labour(updatedLabour.getId(),updatedLabour.getName(),updatedLabour.getMobileNumber(),farmer.get());
-        if (!labourService.updateLabour(id, labour)) {
+        if (!labourService.updateLabour(labour)) {
             ResponseWrapper<String> responseWrapper = new ResponseWrapper<>(false,"", ErrorCode.ID_NOT_EXISTS, "Labour Id does not exist");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new Gson().toJson(responseWrapper));
         }
