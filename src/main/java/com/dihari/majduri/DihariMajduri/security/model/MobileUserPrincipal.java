@@ -20,13 +20,11 @@ public class MobileUserPrincipal implements UserDetails {
 
     @Override
     public String getPassword() {
-        System.out.println("Pin :"+ farmer.getPin());
         return farmer.getPin();
     }
 
     @Override
     public String getUsername() {
-        System.out.println("Mobile number: "+farmer.getMobileNumber());
         return farmer.getMobileNumber();
     }
 

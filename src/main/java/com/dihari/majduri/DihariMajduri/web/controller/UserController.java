@@ -10,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/web")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -23,7 +24,7 @@ public class UserController {
     public User register(@RequestBody User user)
     {
         System.out.println("*********Register method got called********");
-    return userService.saveUser(user);
+       return userService.saveUser(user);
     }
 
     @PostMapping("/login")

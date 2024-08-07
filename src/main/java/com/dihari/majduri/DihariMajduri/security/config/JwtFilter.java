@@ -2,8 +2,6 @@ package com.dihari.majduri.DihariMajduri.security.config;
 
 
 import com.dihari.majduri.DihariMajduri.security.service.JwtService;
-import com.dihari.majduri.DihariMajduri.security.service.MobileUserDetailsService;
-import com.dihari.majduri.DihariMajduri.security.service.MyUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +11,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -32,25 +31,21 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-
-        System.out.println("********do filter internal*********");
-
-        request.getHeaderNames().asIterator().forEachRemaining(headerName -> {
-            System.out.println("  " + headerName + ": " + request.getHeader(headerName));
-        });
+//        System.out.println("********do filter internal*********");
+//
+//        request.getHeaderNames().asIterator().forEachRemaining(headerName -> {
+//            System.out.println("  " + headerName + ": " + request.getHeader(headerName));
+//        });
 //        String requestPath = request.getRequestURI();
 //        if (isWebRequest(requestPath)) {
-//            System.out.println("Web request detected: " + requestPath);
-//            // Perform additional logic for web requests if needed
 //            request.setAttribute("divertTo", "WEB");
 //        } else if (isMobileRequest(requestPath)) {
-//            System.out.println("Mobile request detected: " + requestPath);
-//            // Perform additional logic for mobile requests if needed
 //            request.setAttribute("divertTo", "MOBILE");
 //        }
-        System.out.println("*************************************");
+//        System.out.println("*************************************");
 
 
+        setRequestAttribute(request);
 
         String authHeader=request.getHeader("Authorization");
         String token=null;
@@ -59,27 +54,28 @@ public class JwtFilter extends OncePerRequestFilter {
             token=authHeader.substring(7);
             userName=jwtService.extractUserName(token);
         }
-
-
-
         if(userName!=null && SecurityContextHolder.getContext().getAuthentication()==null){
-            UserDetails userDetails=applicationContext.getBean(MobileUserDetailsService.class)
+            UserDetails userDetails=applicationContext.getBean(UserDetailsService.class)
                         .loadUserByUsername(userName);
 
             if(jwtService.validateToken(token,userDetails))
             {
-                System.out.println("***********2**********");
                 UsernamePasswordAuthenticationToken authToken=new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-                System.out.println("***********3**********");
             }
         }
-        System.out.println("***********4**********");
         filterChain.doFilter(request,response);
-        System.out.println("***********5**********");
     }
 
+    private void setRequestAttribute(HttpServletRequest request){
+        String requestPath = request.getRequestURI();
+        if (isWebRequest(requestPath)) {
+            request.setAttribute("divertTo", "WEB");
+        } else if (isMobileRequest(requestPath)) {
+            request.setAttribute("divertTo", "MOBILE");
+        }
+    }
     private boolean isWebRequest(String path) {
         return path.startsWith("/web/");
     }

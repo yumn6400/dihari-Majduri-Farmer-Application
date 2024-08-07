@@ -25,7 +25,6 @@ public class JwtService {
         secretKey=generateSecretKey();
     }
     private String generateSecretKey(){
-        System.out.println("*******generate secret key *********");
         try
         {
             KeyGenerator keyGenerator=KeyGenerator.getInstance("HmacSHA256");
@@ -38,7 +37,6 @@ public class JwtService {
     }
 
     public String generateToken(String username){
-        System.out.println("********Generate token method got called*******");
         Map<String,Object> claims=new HashMap<>();
 
         return Jwts.builder()
@@ -50,25 +48,20 @@ public class JwtService {
     }
 
     private Key getKey(){
-        System.out.println("*********getkey*********");
         byte[] keyBytes= Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractUserName(String token){
-        System.out.println("*********extract username**********");
-        System.out.println("********Token :"+token);
         return extractClaim(token, Claims::getSubject);
     }
 
     public<T> T extractClaim(String token, Function<Claims,T> claimResolver){
-        System.out.println("*********extract claim*********");
         final Claims claims=extractAllClaims(token);
         return claimResolver.apply(claims);
     }
 
     private Claims extractAllClaims(String token){
-        System.out.println("**********extract all claims********");
         return Jwts.parserBuilder()
                 .setSigningKey(getKey())
                 .build()
@@ -77,17 +70,14 @@ public class JwtService {
     }
 
     public boolean validateToken(String token, UserDetails userDetails){
-        System.out.println("************validate token*********");
         final String username=extractUserName(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 
     private boolean isTokenExpired(String token){
-        System.out.println("**********is Token expired********");
         return extractExpiration(token).before(new Date());
     }
     private Date extractExpiration(String token){
-        System.out.println("**********extract expiration*******");
         return extractClaim(token,Claims::getExpiration);
     }
 }
