@@ -1,5 +1,8 @@
 package com.dihari.majduri.DihariMajduri.security.config;
 
+import com.dihari.majduri.DihariMajduri.security.service.MobileUserDetailsService;
+import com.dihari.majduri.DihariMajduri.security.service.MyUserDetailsService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +33,6 @@ public class SecurityConfig {
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider provider=new DaoAuthenticationProvider();
         provider.setUserDetailsService(userDetailsService);
-        //provider.setPasswordEncoder(NoOpPasswordEncoder.getInstance());
         provider.setPasswordEncoder(new BCryptPasswordEncoder(12));
         return provider;
     }
@@ -40,7 +42,7 @@ public class SecurityConfig {
 
         httpSecurity.csrf(customizer -> customizer.disable())
                    .authorizeHttpRequests(request->request
-                       .requestMatchers(new AntPathRequestMatcher("/login"),new AntPathRequestMatcher("/register"))
+                       .requestMatchers(new AntPathRequestMatcher("/web/login"),new AntPathRequestMatcher("/web/register"),new AntPathRequestMatcher("/mobile/login"),new AntPathRequestMatcher("/mobile/register"))
                         .permitAll()
                         .anyRequest().authenticated())
                  .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

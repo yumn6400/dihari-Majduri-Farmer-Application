@@ -7,12 +7,15 @@ import com.dihari.majduri.DihariMajduri.mobile.pojo.LoginRequestPojo;
 import com.dihari.majduri.DihariMajduri.mobile.model.Farmer;
 import com.dihari.majduri.DihariMajduri.mobile.common.ResponseWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class FarmerService {
+
+    private BCryptPasswordEncoder encoder=new BCryptPasswordEncoder(12);
 
     @Autowired
     private FarmerRepository farmerRepository;
@@ -26,17 +29,19 @@ public class FarmerService {
     }
 
     public int addFarmer(Farmer farmer) {
+
         Optional<Farmer> existingFarmerOptional = farmerRepository.findByMobileNumber(farmer.getMobileNumber());
         if (existingFarmerOptional.isPresent()) {
-           Farmer existingFarmer=existingFarmerOptional.get();
+            Farmer existingFarmer=existingFarmerOptional.get();
            existingFarmer.setFirstName(farmer.getFirstName());
             existingFarmer.setLastName(farmer.getLastName());
            existingFarmer.setMobileNumber(farmer.getMobileNumber());
-           existingFarmer.setPin(farmer.getPin());
+           existingFarmer.setPin(encoder.encode(farmer.getPin()));
            farmerRepository.save(existingFarmer);
            return existingFarmer.getId();
         }
         else {
+            farmer.setPin(encoder.encode(farmer.getPin()));
             farmerRepository.save(farmer);
             return farmer.getId();
         }
