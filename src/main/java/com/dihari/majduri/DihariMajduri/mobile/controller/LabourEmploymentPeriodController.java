@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/labour-employment-periods")
+@RequestMapping("mobile/labour-employment-periods")
 public class LabourEmploymentPeriodController {
 
     @Autowired

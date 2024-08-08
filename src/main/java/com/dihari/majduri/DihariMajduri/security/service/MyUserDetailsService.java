@@ -45,7 +45,7 @@ public class MyUserDetailsService implements UserDetailsService {
             }
             return new MobileUserPrincipal(farmer.orElse(null));
         }
-        return null;
+        throw  new UsernameNotFoundException("Invalid request URL");
 
     }
 }

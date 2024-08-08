@@ -1,5 +1,4 @@
 package com.dihari.majduri.DihariMajduri.mobile.controller;
-
 import com.dihari.majduri.DihariMajduri.mobile.common.ErrorCode;
 import com.dihari.majduri.DihariMajduri.mobile.pojo.ChangeFarmerPinPojo;
 import com.dihari.majduri.DihariMajduri.mobile.pojo.FarmerPojo;
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/farmers")
+@RequestMapping("/mobile/farmers")
 public class FarmerController {
 
     @Autowired

@@ -12,7 +12,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/crop-work-types")
+@RequestMapping("/mobile/crop-work-types")
 public class CropWorkTypeController {
 
     @Autowired

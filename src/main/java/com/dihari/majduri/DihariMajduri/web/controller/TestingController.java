@@ -1,17 +1,22 @@
 package com.dihari.majduri.DihariMajduri.web.controller;
 
+import com.dihari.majduri.DihariMajduri.web.service.TestingService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+@RequestMapping("/web")
 @RestController
 public class TestingController {
 
+    @Autowired
+    TestingService testingService;
     @GetMapping("/")
     public String hello(){
-        return "Welcome to Dihari-Majduri Application";
+        return testingService.hello();
     }
 
     @GetMapping("/testing/csrf-token")

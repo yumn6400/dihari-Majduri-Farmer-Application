@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/labours")
+@RequestMapping("mobile/labours")
 public class LabourController {
 
     @Autowired
