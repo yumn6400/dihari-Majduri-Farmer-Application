@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+    networks:
+      - s-network
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: dihariMajduriDB
+      MYSQL_USER: pradhyumn
+      MYSQL_PASSWORD: pradhyumn
+      MYSQL_ROOT_PASSWORD: pradhyumn
+    ports:
+      - "3307:3306"
+    networks:
+      - s-network
+
+networks:
+  s-network:
+    driver: bridge

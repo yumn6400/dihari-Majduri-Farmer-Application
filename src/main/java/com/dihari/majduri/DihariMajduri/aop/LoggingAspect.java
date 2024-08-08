@@ -14,7 +14,7 @@ public class LoggingAspect {
 
     @Before("execution(* com.dihari.majduri.DihariMajduri.mobile.service.*.*(..))|| execution(* com.dihari.majduri.DihariMajduri.web.service.*.*(..))")
     public void logMethodCall(JoinPoint jp){
-    LOGGER.info("*****"+jp.getSignature().getName()+" Method got call"+"*****");
+    LOGGER.info("*****"+jp.getSignature().getName()+" Method got called"+"*****");
     }
 
     @After("execution(* com.dihari.majduri.DihariMajduri.mobile.service.*.*(..))|| execution(* com.dihari.majduri.DihariMajduri.web.service.*.*(..))")
